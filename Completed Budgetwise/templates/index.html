@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BudgetWise — smart expense &amp; budget tracking</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@500;600&amp;display=swap" rel="stylesheet"/>
+
+<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet"/></head>
+<body>
+<!-- ================= LOGIN / REGISTER ================= -->
+<div id="screen-login">
+<div class="login-panel">
+<div class="login-brand"><span class="brand-dot"></span>BudgetWise</div>
+<h1 class="login-hero-title">
+      Take control of your money<br/>
+      with <span class="gold">BudgetWise</span>
+</h1>
+<div class="login-hero-sub">
+      Track expenses, create budgets, and analyze spending — all in<br/>
+      one clean dashboard.
+    </div>
+<div class="login-stats">
+<div class="login-stat"><strong>8+</strong><span>Smart categories</span></div>
+<div class="login-stat"><strong>100%</strong><span>Private &amp; local</span></div>
+<div class="login-stat"><strong>Real-time</strong><span>Budget alerts</span></div>
+</div>
+<div class="login-card anim-up d2">
+<div class="login-title">Welcome back</div>
+<div class="login-sub">Log in or create an account to continue</div>
+<div class="login-tabs">
+<button class="login-tab active" data-mode="login">Log in</button>
+<button class="login-tab" data-mode="register">Register</button>
+</div>
+<div id="password-login-fields">
+<div class="field">
+<label for="auth-user">Username</label>
+<div class="login-input-wrap">
+<svg aria-hidden="true" fill="currentColor" viewbox="0 0 24 24">
+<circle cx="12" cy="8" r="4"></circle>
+<path d="M4 21c.6-4 3.1-6 8-6s7.4 2 8 6H4z"></path>
+</svg>
+<input autocomplete="username" id="auth-user" placeholder="jane_doe" type="text"/>
+</div>
+</div>
+<div class="field">
+<label for="auth-pass">Password</label>
+<div class="login-input-wrap password-wrap">
+<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<rect height="10" rx="2" width="14" x="5" y="10"></rect>
+<path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+</svg>
+<input autocomplete="current-password" id="auth-pass" placeholder="Enter password" type="password"/>
+<button aria-label="Show password" class="password-toggle" id="password-toggle" type="button">
+<svg fill="none" id="eye-icon" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path>
+<circle cx="12" cy="12" r="2.5"></circle>
+</svg>
+</button>
+</div>
+</div>
+<button class="btn btn-primary btn-full" id="auth-submit">Log in</button>
+<div class="error-text" id="auth-error"></div>
+<div class="login-extra-row">
+<button class="link-btn" id="forgot-pw-link" type="button">Forgot Password?</button>
+</div>
+<div class="login-divider"><span>or</span></div>
+<button class="login-otp-btn" id="otp-login-link" type="button">
+          Log in with phone (OTP)
+        </button>
+</div>
+<div class="hidden" id="otp-login-fields">
+<div class="field">
+<label for="otp-user">Username</label>
+<input autocomplete="username" id="otp-user" placeholder="jane_doe" type="text"/>
+</div>
+<div class="field">
+<label for="otp-phone">Phone number</label>
+<input id="otp-phone" placeholder="+1 555 123 4567" type="text"/>
+</div>
+<button class="btn btn-primary btn-full" id="otp-send-btn">Send OTP</button>
+<div class="field hidden" id="otp-code-field" style="margin-top:14px;">
+<label for="otp-code">Enter the 6-digit code</label>
+<input id="otp-code" maxlength="6" placeholder="123456" type="text"/>
+<button class="btn btn-primary btn-full" id="otp-verify-btn" style="margin-top:10px;">Verify &amp; log in</button>
+</div>
+<div class="error-text" id="otp-error"></div>
+<button class="link-btn" id="otp-back-link" style="margin-top:8px;" type="button">← Back to password login</button>
+</div>
+<div class="login-footer">
+        Don't have an account?
+        <button class="link-btn" id="register-footer-link" type="button">Register</button>
+</div>
+</div>
+</div>
+</div>
+<!-- ---------- MODALS ---------- -->
+<div class="modal-scrim hidden" id="modal-forgot">
+<div class="modal-box">
+<button aria-label="Close" class="modal-close-x" data-close-modal="modal-forgot">✕</button>
+<div class="m-title">Reset your password</div>
+<div class="m-sub">Since this app stores data locally in your browser (no email server), confirm your username and the email on your profile to set a new password.</div>
+<div class="field"><label for="fp-user">Username</label><input id="fp-user" placeholder="jane_doe" type="text"/></div>
+<div class="field"><label for="fp-email">Email on file</label><input id="fp-email" placeholder="jane@example.com" type="email"/></div>
+<div class="field hidden" id="fp-newpass-field"><label for="fp-newpass">New password</label><input id="fp-newpass" placeholder="At least 6 characters" type="password"/></div>
+<div class="form-msg" id="fp-msg"></div>
+<div class="m-actions">
+<button class="btn btn-secondary" data-close-modal="modal-forgot">Cancel</button>
+<button class="btn btn-primary" id="fp-submit">Confirm identity</button>
+</div>
+</div>
+</div>
+<div class="modal-scrim hidden" id="modal-verify-email">
+<div class="modal-box">
+<button aria-label="Close" class="modal-close-x" data-close-modal="modal-verify-email">✕</button>
+<div class="m-title">Verify your email</div>
+<div class="m-sub" id="verify-email-sub">Enter your email to receive a verification code.</div>
+<div class="field" id="verify-email-input-field"><label for="ve-email">Email address</label><input id="ve-email" placeholder="jane@example.com" type="email"/></div>
+<div class="hidden" id="verify-email-code-block">
+<div class="code-display" id="ve-generated-code">------</div>
+<div class="m-sub" style="margin-top:-8px;">No real email was sent — this is a local simulation. Copy the code above and paste it below.</div>
+<div class="field"><label for="ve-code">Verification code</label><input id="ve-code" maxlength="6" placeholder="123456" type="text"/></div>
+</div>
+<div class="form-msg" id="ve-msg"></div>
+<div class="m-actions">
+<button class="btn btn-secondary" data-close-modal="modal-verify-email">Later</button>
+<button class="btn btn-primary" id="ve-action-btn">Send code</button>
+</div>
+</div>
+</div>
+<div class="modal-scrim hidden" id="modal-bill">
+<div class="modal-box">
+<button aria-label="Close" class="modal-close-x" data-close-modal="modal-bill">✕</button>
+<div class="m-title" id="bill-modal-title">Add bill</div>
+<div class="m-sub">Enter the bill details. You can edit or mark it paid any time.</div>
+<form id="bill-form">
+<input id="bill-id" type="hidden"/>
+<div class="field"><label for="bill-name">Bill name</label><input id="bill-name" maxlength="50" placeholder="e.g. Electricity" required="" type="text"/></div>
+<div class="field"><label for="bill-amt">Amount</label><input id="bill-amt" min="0.01" placeholder="0.00" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="bill-cat">Category</label><select id="bill-cat"></select></div>
+<div class="field"><label for="bill-due">Due date</label><input id="bill-due" required="" type="date"/></div>
+<div class="field"><label for="bill-notes">Notes (optional)</label><input id="bill-notes" maxlength="80" placeholder="e.g. autopay disabled" type="text"/></div>
+<div class="form-msg err" id="bill-msg"></div>
+<div class="m-actions">
+<button class="btn btn-secondary" data-close-modal="modal-bill" type="button">Cancel</button>
+<button class="btn btn-primary" id="bill-save-btn" type="submit">Save bill</button>
+</div>
+</form>
+</div>
+</div>
+<div class="modal-scrim hidden" id="modal-sub">
+<div class="modal-box">
+<button aria-label="Close" class="modal-close-x" data-close-modal="modal-sub">✕</button>
+<div class="m-title" id="sub-modal-title">Add subscription</div>
+<div class="m-sub">Enter the subscription's billing details.</div>
+<form id="sub-form">
+<input id="sub-id" type="hidden"/>
+<div class="field"><label for="sub-name">Subscription name</label><input id="sub-name" maxlength="50" placeholder="e.g. Netflix" required="" type="text"/></div>
+<div class="field"><label for="sub-amt">Amount</label><input id="sub-amt" min="0.01" placeholder="0.00" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="sub-freq">Billing frequency</label>
+<select id="sub-freq">
+<option value="monthly">Monthly</option>
+<option value="yearly">Yearly</option>
+<option value="weekly">Weekly</option>
+</select>
+</div>
+<div class="field"><label for="sub-next">Next payment date</label><input id="sub-next" required="" type="date"/></div>
+<div class="field"><label for="sub-cat">Category</label><select id="sub-cat"></select></div>
+<div class="field"><label for="sub-status">Status</label>
+<select id="sub-status"><option value="active">Active</option><option value="cancelled">Cancelled</option></select>
+</div>
+<div class="form-msg err" id="sub-msg"></div>
+<div class="m-actions">
+<button class="btn btn-secondary" data-close-modal="modal-sub" type="button">Cancel</button>
+<button class="btn btn-primary" type="submit">Save subscription</button>
+</div>
+</form>
+</div>
+</div>
+<div class="modal-scrim hidden" id="modal-emi">
+<div class="modal-box">
+<button aria-label="Close" class="modal-close-x" data-close-modal="modal-emi">✕</button>
+<div class="m-title" id="emi-modal-title">Add EMI</div>
+<div class="m-sub">The monthly EMI is calculated automatically from these details.</div>
+<form id="emi-form">
+<input id="emi-id" type="hidden"/>
+<div class="field"><label for="emi-name">Loan name</label><input id="emi-name" maxlength="50" placeholder="e.g. Car loan" required="" type="text"/></div>
+<div class="field"><label for="emi-principal">Principal amount</label><input id="emi-principal" min="1" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="emi-rate">Annual interest rate (%)</label><input id="emi-rate" min="0" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="emi-tenure">Loan tenure (months)</label><input id="emi-tenure" min="1" required="" step="1" type="number"/></div>
+<div class="field"><label for="emi-start">Start date</label><input id="emi-start" required="" type="date"/></div>
+<div class="form-msg err" id="emi-msg"></div>
+<div class="m-actions">
+<button class="btn btn-secondary" data-close-modal="modal-emi" type="button">Cancel</button>
+<button class="btn btn-primary" type="submit">Save EMI</button>
+</div>
+</form>
+</div>
+</div>
+<div id="toast-stack"></div>
+<!-- ================= APP SHELL ================= -->
+<div class="hidden" id="app-shell">
+<div class="sidebar-scrim" id="sidebar-scrim"></div>
+<aside class="sidebar" id="sidebar">
+<div class="brand"><span class="dot"></span>BudgetWise</div>
+<nav class="side-nav">
+<button class="side-link" data-nav="dashboard">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="9" rx="1.5" width="7" x="3" y="3"></rect><rect height="5" rx="1.5" width="7" x="14" y="3"></rect><rect height="9" rx="1.5" width="7" x="14" y="12"></rect><rect height="5" rx="1.5" width="7" x="3" y="16"></rect></svg>
+<span data-i18n="nav_dashboard">Dashboard</span>
+</button>
+<button class="side-link" data-nav="add-income">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
+<span data-i18n="nav_add_income">Add income</span>
+</button>
+<button class="side-link" data-nav="add-expense">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><path d="M6 4h9l3 3v13H6z"></path><path d="M9 9h6M9 13h6M9 17h4"></path></svg>
+<span data-i18n="nav_add_expense">Add expense</span>
+</button>
+<button class="side-link" data-nav="budget">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></svg>
+<span data-i18n="nav_budget">Budgets</span>
+</button>
+<button class="side-link" data-nav="bills">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="16" rx="2" width="18" x="3" y="4"></rect><path d="M3 9h18M8 4v3M16 4v3M8 14h3M8 17h5"></path></svg>
+<span data-i18n="nav_bills">Bills</span>
+</button>
+<button class="side-link" data-nav="subs">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="13" rx="2" width="20" x="2" y="7"></rect><path d="M2 11h20"></path><circle cx="7" cy="15.5" r="1"></circle></svg>
+<span data-i18n="nav_subs">Subscriptions</span>
+</button>
+<button class="side-link" data-nav="emi">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="14" rx="2" width="18" x="3" y="5"></rect><path d="M7 9h6M7 13h10"></path></svg>
+<span data-i18n="nav_emi">EMI</span>
+</button>
+<button class="side-link" data-nav="reports">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-7"></path><path d="M3 19h18"></path></svg>
+<span data-i18n="nav_reports">Reports</span>
+</button>
+<button class="side-link" data-nav="transactions">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="16" rx="2" width="16" x="4" y="4"></rect><path d="M8 9h8M8 13h8M8 17h5"></path></svg>
+<span data-i18n="nav_transactions">Transactions</span>
+</button>
+<button class="side-link" data-nav="settings">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"></path></svg>
+<span data-i18n="nav_settings">Settings</span>
+</button>
+</nav>
+<div class="side-foot">
+<button class="btn btn-secondary btn-full" data-i18n="nav_logout" id="logout-btn">Log out</button>
+</div>
+</aside>
+<div class="app-main">
+<div class="topbar">
+<div class="topbar-left">
+<button aria-label="Toggle menu" class="hamburger" id="hamburger">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"></path></svg>
+</button>
+<button aria-label="Back to dashboard" class="back-btn" id="back-to-dashboard">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
+          Dashboard
+        </button>
+<span class="topbar-title" id="topbar-title">Dashboard</span>
+</div>
+<div class="topbar-right">
+<button aria-label="Toggle dark mode" class="theme-toggle" id="theme-toggle"><span class="knob"></span></button>
+<div class="avatar-chip">
+<div class="avatar-circ" id="avatar-circ">JD</div>
+<span id="welcome-name" style="font-size:13.5px; font-weight:600;"></span>
+</div>
+</div>
+</div>
+<main class="content">
+<!-- ---------- DASHBOARD ---------- -->
+<section id="screen-dashboard">
+<div class="stat-grid">
+<div class="card card-hover stat-card anim-up d1">
+<div class="s-icon icon-blue"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="13" rx="2" width="20" x="2" y="6"></rect><path d="M2 10h20"></path></svg></div>
+<div class="s-label" data-i18n="stat_total">Total balance</div>
+<div class="s-value" id="dash-total">$0.00</div>
+</div>
+<div class="card card-hover stat-card anim-up d1">
+<div class="s-icon icon-green"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"></path></svg></div>
+<div class="s-label" data-i18n="stat_income">Monthly income</div>
+<div class="s-value pos" id="dash-income">$0.00</div>
+</div>
+<div class="card card-hover stat-card anim-up d2">
+<div class="s-icon icon-red"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"></path></svg></div>
+<div class="s-label" data-i18n="stat_expenses">Monthly expenses</div>
+<div class="s-value neg" id="dash-spent">$0.00</div>
+</div>
+<div class="card card-hover stat-card anim-up d2">
+<div class="s-icon icon-amber"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg></div>
+<div class="s-label" data-i18n="stat_savings">Savings</div>
+<div class="s-value" id="dash-savings">$0.00</div>
+</div>
+<div class="card card-hover stat-card anim-up d3">
+<div class="s-icon icon-blue"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4"></circle></svg></div>
+<div class="s-label" data-i18n="stat_budget_remaining">Budget remaining</div>
+<div class="s-value" id="dash-budget-remaining">$0.00</div>
+</div>
+<div class="card card-hover stat-card anim-up d3">
+<div class="s-icon icon-purple"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="16" rx="2" width="18" x="3" y="4"></rect><path d="M3 9h18M8 4v3M16 4v3M8 14h3M8 17h5"></path></svg></div>
+<div class="s-label" data-i18n="stat_bills_pending">Pending bills</div>
+<div class="s-value" id="dash-bills-pending">$0.00</div>
+</div>
+</div>
+<div class="quick-grid">
+<button class="quick-tile card-hover" data-nav="add-income">
+<div class="q-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg></div>
+<span data-i18n="nav_add_income">Add income</span>
+</button>
+<button class="quick-tile card-hover" data-nav="add-expense">
+<div class="q-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><path d="M6 4h9l3 3v13H6z"></path><path d="M9 9h6M9 13h6M9 17h4"></path></svg></div>
+<span data-i18n="nav_add_expense">Add expense</span>
+</button>
+<button class="quick-tile card-hover" data-nav="budget">
+<div class="q-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></svg></div>
+<span data-i18n="quick_set_budget">Set budget</span>
+</button>
+<button class="quick-tile card-hover" data-nav="reports">
+<div class="q-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><path d="M5 19V10M12 19V5M19 19v-7"></path><path d="M3 19h18"></path></svg></div>
+<span data-i18n="nav_reports">Reports</span>
+</button>
+</div>
+<div class="dash-charts">
+<div class="card chart-card anim-up d3">
+<div class="card-head"><h3>Expenses — last 7 days</h3><span id="week-total-label"></span></div>
+<div class="bar-chart" id="week-bar-chart"></div>
+</div>
+<div class="card chart-card anim-up d4">
+<div class="card-head"><h3>Spending by category</h3><span>This month</span></div>
+<div id="dash-donut" style="display:flex; justify-content:center;"></div>
+</div>
+</div>
+<div class="card anim-up d4">
+<div class="card-head"><h3>Bills — due soon</h3><button class="link-btn" data-nav="bills" type="button">View all</button></div>
+<div id="dash-bills-widget"></div>
+</div>
+</section>
+<!-- ---------- ADD INCOME ---------- -->
+<section class="hidden" id="screen-add-income">
+<div class="card anim-up" style="max-width:480px;">
+<div class="page-title" data-i18n="pt_add_income">Add income</div>
+<div class="page-sub" data-i18n="ps_add_income">Record money coming in this month.</div>
+<form id="income-form">
+<div class="field"><label for="inc-date">Date</label><input id="inc-date" required="" type="date"/></div>
+<div class="field"><label for="inc-desc">Description</label><input id="inc-desc" maxlength="60" placeholder="e.g. Salary" required="" type="text"/></div>
+<div class="field"><label for="inc-source">Source</label>
+<select id="inc-source">
+<option value="Salary">Salary</option><option value="Freelance">Freelance</option>
+<option value="Business">Business</option><option value="Investment">Investment</option>
+<option value="Gift">Gift</option><option value="Other">Other</option>
+</select>
+</div>
+<div class="field"><label for="inc-amt">Amount</label><input id="inc-amt" min="0.01" placeholder="0.00" required="" step="0.01" type="number"/></div>
+<button class="btn btn-primary btn-full" data-i18n="btn_add_income" type="submit">Add income</button>
+</form>
+</div>
+</section>
+<!-- ---------- ADD EXPENSE ---------- -->
+<section class="hidden" id="screen-add-expense">
+<div class="card anim-up" style="max-width:480px;">
+<div class="page-title" data-i18n="pt_add_expense">Add expense</div>
+<div class="page-sub" data-i18n="ps_add_expense">Every entry gets filed under a category and checked against its budget.</div>
+<div id="expense-alert-slot"></div>
+<form id="expense-form">
+<div class="field"><label for="exp-date">Date</label><input id="exp-date" required="" type="date"/></div>
+<div class="field"><label for="exp-desc">Description</label><input id="exp-desc" maxlength="60" placeholder="e.g. Groceries" required="" type="text"/></div>
+<div class="field">
+<label for="exp-cat">Category</label>
+<div style="display:flex; gap:8px;">
+<select id="exp-cat" style="flex:1;"></select>
+<button class="btn btn-secondary" id="new-cat-toggle" style="white-space:nowrap; padding:11px 14px;" type="button">+ New</button>
+</div>
+<div class="hidden" id="new-cat-box" style="display:flex; gap:8px; margin-top:10px;">
+<input id="new-cat-name" maxlength="24" placeholder="Category name, e.g. Pets" style="flex:1;" type="text"/>
+<button class="btn btn-primary" id="new-cat-add" style="white-space:nowrap;" type="button">Add</button>
+<button class="btn btn-secondary" id="new-cat-cancel" style="white-space:nowrap;" type="button">Cancel</button>
+</div>
+</div>
+<div class="field"><label for="exp-amt">Amount</label><input id="exp-amt" min="0.01" placeholder="0.00" required="" step="0.01" type="number"/></div>
+<div class="field">
+<label for="exp-payment">Payment method</label>
+<select id="exp-payment">
+<option value="Cash">Cash</option>
+<option value="UPI">UPI</option>
+<option value="Credit Card">Credit Card</option>
+<option value="Debit Card">Debit Card</option>
+<option value="Net Banking">Net Banking</option>
+</select>
+</div>
+<div class="field">
+<label for="exp-location">Location</label>
+<select id="exp-location">
+<option value="">No location</option>
+<option value="Restaurant">Restaurant</option>
+<option value="Mall">Mall</option>
+<option value="Fuel Station">Fuel Station</option>
+<option value="Other">Other</option>
+</select>
+</div>
+<div class="field">
+<label>Receipt</label>
+<div style="display:flex; align-items:center; gap:10px;">
+<button class="btn btn-secondary" id="exp-receipt-btn" type="button">Upload Bill</button>
+<input accept="image/*" class="hidden" id="exp-receipt" type="file"/>
+<span id="exp-receipt-filename" style="font-size:12.5px; color:var(--text-soft);"></span>
+</div>
+<div class="hidden" id="exp-receipt-preview" style="margin-top:10px; display:flex; align-items:center; gap:10px;">
+<img alt="Receipt preview" id="exp-receipt-thumb" src="" style="width:56px; height:56px; object-fit:cover; border-radius:10px; border:1px solid var(--border);"/>
+<button class="link-btn" id="exp-receipt-remove" type="button">Remove bill</button>
+</div>
+</div>
+<button class="btn btn-primary btn-full" data-i18n="btn_add_expense" type="submit">Add expense</button>
+</form>
+</div>
+</section>
+<!-- ---------- SET BUDGET ---------- -->
+<section class="hidden" id="screen-budget">
+<div class="card anim-up">
+<div class="page-title" data-i18n="pt_budgets">Budgets</div>
+<div class="page-sub" data-i18n="ps_budgets">Monthly limits per category. Bars turn amber past 80%, red once exceeded.</div>
+<div id="budget-list"></div>
+</div>
+</section>
+<!-- ---------- BILLS ---------- -->
+<section class="hidden" id="screen-bills">
+<div class="card anim-up">
+<div class="page-title" data-i18n="pt_bills">Bill reminders</div>
+<div class="page-sub" data-i18n="ps_bills">Track upcoming, due-soon, overdue and paid bills — nothing slips through.</div>
+<div class="toolbar-row" style="justify-content:space-between;">
+<div class="bill-tabs" id="bill-tabs">
+<button class="bill-tab active" data-bill-filter="all" type="button">All</button>
+<button class="bill-tab" data-bill-filter="upcoming" type="button">Upcoming</button>
+<button class="bill-tab" data-bill-filter="duesoon" type="button">Due soon</button>
+<button class="bill-tab" data-bill-filter="overdue" type="button">Overdue</button>
+<button class="bill-tab" data-bill-filter="paid" type="button">Paid</button>
+</div>
+<button class="btn btn-primary" id="bill-add-btn" type="button">+ Add bill</button>
+</div>
+<div id="bill-list"></div>
+<div class="empty-note hidden" id="bill-empty">No bills here. Add one to get started.</div>
+</div>
+</section>
+<!-- ---------- SUBSCRIPTIONS ---------- -->
+<section class="hidden" id="screen-subs">
+<div class="card anim-up">
+<div class="page-title" data-i18n="pt_subs">Subscriptions</div>
+<div class="page-sub" data-i18n="ps_subs">Track recurring subscriptions and see what they cost you each month and year.</div>
+<div class="compare-grid" style="grid-template-columns:repeat(2,1fr); margin-bottom:22px;">
+<div class="compare-card"><div class="c-label">Monthly cost</div><div class="c-cur" id="sub-monthly-cost">₹0.00</div></div>
+<div class="compare-card"><div class="c-label">Yearly estimated cost</div><div class="c-cur" id="sub-yearly-cost">₹0.00</div></div>
+</div>
+<div class="toolbar-row" style="justify-content:space-between;">
+<div class="bill-tabs" id="sub-tabs">
+<button class="bill-tab active" data-sub-filter="all" type="button">All</button>
+<button class="bill-tab" data-sub-filter="active" type="button">Active</button>
+<button class="bill-tab" data-sub-filter="cancelled" type="button">Cancelled</button>
+</div>
+<button class="btn btn-primary" id="sub-add-btn" type="button">+ Add subscription</button>
+</div>
+<div id="sub-list"></div>
+<div class="empty-note hidden" id="sub-empty">No subscriptions yet.</div>
+</div>
+</section>
+<!-- ---------- EMI ---------- -->
+<section class="hidden" id="screen-emi">
+<div class="card anim-up">
+<div class="page-title" data-i18n="pt_emi">EMI calculator</div>
+<div class="page-sub" data-i18n="ps_emi">Work out a monthly instalment, then save it as an EMI to track.</div>
+<form id="emi-calc-form" style="max-width:480px;">
+<div class="field"><label for="calc-principal">Loan amount</label><input id="calc-principal" min="1" placeholder="e.g. 500000" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="calc-rate">Annual interest rate (%)</label><input id="calc-rate" min="0" placeholder="e.g. 9.5" required="" step="0.01" type="number"/></div>
+<div class="field"><label for="calc-tenure">Loan tenure (months)</label><input id="calc-tenure" min="1" placeholder="e.g. 36" required="" step="1" type="number"/></div>
+<button class="btn btn-primary" type="submit">Calculate EMI</button>
+</form>
+<div class="emi-calc-result hidden" id="emi-calc-result">
+<div class="r-row"><span>Monthly EMI</span><b id="calc-emi-out">₹0.00</b></div>
+<div class="r-row"><span>Total interest</span><b id="calc-interest-out">₹0.00</b></div>
+<div class="r-row"><span>Total payment</span><b id="calc-total-out">₹0.00</b></div>
+<button class="btn btn-secondary btn-full" id="calc-use-btn" style="margin-top:14px;" type="button">Save this as an EMI</button>
+</div>
+</div>
+<div class="card anim-up" style="margin-top:20px;">
+<div class="card-head" style="margin-bottom:0;"><h3>Your EMIs</h3><button class="btn btn-primary" id="emi-add-btn" type="button">+ Add EMI</button></div>
+<div class="bill-tabs" id="emi-tabs" style="margin:16px 0 4px;">
+<button class="bill-tab active" data-emi-filter="all" type="button">All</button>
+<button class="bill-tab" data-emi-filter="active" type="button">Active</button>
+<button class="bill-tab" data-emi-filter="dueSoon" type="button">Due soon</button>
+<button class="bill-tab" data-emi-filter="closed" type="button">Paid off</button>
+</div>
+<div id="emi-list"></div>
+<div class="empty-note hidden" id="emi-empty">No EMIs added yet.</div>
+</div>
+</section>
+<!-- ---------- VIEW REPORTS ---------- -->
+<section class="hidden" id="screen-reports">
+<div class="card anim-up">
+<div class="page-title" data-i18n="pt_reports">Reports</div>
+<div class="page-sub" id="reports-month"></div>
+<div class="bill-tabs" id="report-tabs" style="margin-bottom:22px;">
+<button class="bill-tab active" data-report-tab="category" type="button">By category</button>
+<button class="bill-tab" data-report-tab="payment" type="button">By payment method</button>
+<button class="bill-tab" data-report-tab="location" type="button">By location</button>
+<button class="bill-tab" data-report-tab="compare" type="button">Monthly comparison</button>
+<button class="bill-tab" data-report-tab="calendar" type="button">Calendar</button>
+</div>
+<div id="report-view-category">
+<div class="report-grid">
+<div id="report-donut" style="display:flex; justify-content:center;"></div>
+<div id="report-legend"></div>
+</div>
+</div>
+<div class="hidden" id="report-view-payment">
+<div class="report-grid">
+<div id="report-donut-payment" style="display:flex; justify-content:center;"></div>
+<div id="report-legend-payment"></div>
+</div>
+</div>
+<div class="hidden" id="report-view-location">
+<div class="report-grid">
+<div id="report-donut-location" style="display:flex; justify-content:center;"></div>
+<div id="report-legend-location"></div>
+</div>
+</div>
+<div class="hidden" id="report-view-compare">
+<div id="compare-summary"></div>
+</div>
+<div class="hidden" id="report-view-calendar">
+<div class="cal-head" id="cal-head"></div>
+<div class="cal-grid" id="cal-grid"></div>
+<div id="cal-day-detail"></div>
+</div>
+</div>
+</section>
+<!-- ---------- VIEW TRANSACTIONS ---------- -->
+<section class="hidden" id="screen-transactions">
+<div class="card anim-up">
+<div class="page-title" data-i18n="pt_transactions">Transactions</div>
+<div class="page-sub" data-i18n="ps_transactions">Every entry, searchable, filterable and exportable.</div>
+<div class="toolbar-row">
+<button class="btn btn-secondary" id="btn-export-pdf">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><path d="M6 4h9l3 3v13H6z"></path><path d="M9 13h6M9 17h4"></path></svg>
+              Export PDF
+            </button>
+<button class="btn btn-secondary" id="btn-export-excel">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><rect height="16" rx="2" width="18" x="3" y="4"></rect><path d="M3 10h18M9 10v10"></path></svg>
+              Export Excel
+            </button>
+<button class="btn btn-secondary" id="btn-print-report">
+<svg fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><path d="M6 9V3h12v6"></path><rect height="8" rx="1.5" width="16" x="4" y="9"></rect><path d="M6 17h12v4H6z"></path></svg>
+              Print Report
+            </button>
+</div>
+<div class="filter-row">
+<input id="filter-search" placeholder="Search description..." type="text"/>
+<select id="filter-type"><option value="all">All types</option><option value="income">Income</option><option value="expense">Expense</option></select>
+<select id="filter-cat"><option value="all">All categories</option></select>
+</div>
+<div class="filter-row">
+<input id="filter-date" title="Search by exact date" type="date"/>
+<select id="filter-month" title="Search by month"><option value="all">All months</option></select>
+<input id="filter-amount" min="0" placeholder="Search by amount" step="0.01" title="Search by exact amount" type="number"/>
+</div>
+<table id="print-tx-table">
+<thead><tr><th>Date</th><th>Description</th><th>Category</th><th style="text-align:right;">Amount</th><th></th></tr></thead>
+<tbody id="tx-body"></tbody>
+</table>
+<div class="empty-note hidden" id="tx-empty">No transactions match your filters.</div>
+</div>
+</section>
+<!-- ---------- SETTINGS ---------- -->
+<section class="hidden" id="screen-settings">
+<div class="card anim-up">
+<div class="page-title" data-i18n="pt_settings">Settings</div>
+<div class="page-sub" data-i18n="ps_settings">Profile, currency and appearance.</div>
+<div class="settings-section-title">Profile</div>
+<div class="avatar-row">
+<div class="settings-avatar" id="settings-avatar">JD</div>
+<div class="av-actions">
+<button class="btn btn-secondary" id="avatar-upload-btn" type="button">Upload photo</button>
+<button class="btn btn-secondary" id="avatar-remove-btn" type="button">Remove</button>
+<input accept="image/*" class="hidden" id="avatar-file-input" type="file"/>
+</div>
+</div>
+<form id="profile-form" style="max-width:420px; margin-bottom:8px;">
+<div class="field"><label for="prof-name">Display name</label><input id="prof-name" maxlength="30" type="text"/></div>
+<div class="field">
+<label for="prof-email">Email <span id="settings-verify-badge"></span></label>
+<input id="prof-email" placeholder="jane@example.com" type="email"/>
+</div>
+<div class="field"><label for="prof-phone">Phone</label><input id="prof-phone" placeholder="+1 555 123 4567" type="text"/></div>
+<div class="field">
+<label data-i18n="lbl_currency" for="prof-currency">Currency</label>
+<select id="prof-currency">
+<option value="₹">₹ Indian Rupee</option>
+<option value="$">$ US Dollar</option>
+<option value="€">€ Euro</option>
+<option value="£">£ British Pound</option>
+</select>
+</div>
+<div class="field">
+<label data-i18n="lbl_language" for="prof-language">Language</label>
+<select id="prof-language">
+<option value="en">English</option>
+<option value="hi">हिन्दी (Hindi)</option>
+<option value="gu">ગુજરાતી (Gujarati)</option>
+</select>
+</div>
+<button class="btn btn-primary" type="submit">Save changes</button>
+<button class="link-btn" id="settings-verify-btn" style="margin-left:14px;" type="button">Verify email</button>
+</form>
+<div class="settings-section-title">Change password</div>
+<form id="password-form" style="max-width:420px; margin-bottom:8px;">
+<div class="field"><label for="pw-current">Current password</label><input autocomplete="current-password" id="pw-current" type="password"/></div>
+<div class="field"><label for="pw-new">New password</label><input autocomplete="new-password" id="pw-new" placeholder="At least 6 characters" type="password"/></div>
+<div class="field"><label for="pw-confirm">Confirm new password</label><input autocomplete="new-password" id="pw-confirm" type="password"/></div>
+<button class="btn btn-primary" type="submit">Update password</button>
+<div class="form-msg" id="pw-msg"></div>
+</form>
+<div class="settings-section-title">Preferences</div>
+<div class="toggle-row">
+<div><div class="t-label" data-i18n="t_dark_mode">Dark mode</div><div class="t-sub" data-i18n="t_dark_mode_sub">Switch between light and dark appearance</div></div>
+<button aria-label="Toggle dark mode" class="theme-toggle" id="theme-toggle-2"><span class="knob"></span></button>
+</div>
+<div class="toggle-row">
+<div><div class="t-label" data-i18n="t_budget_alerts">Budget alerts</div><div class="t-sub" data-i18n="t_budget_alerts_sub">Warn when a category passes 80% of its budget</div></div>
+<button aria-label="Toggle budget alerts" class="theme-toggle" id="alerts-toggle"><span class="knob"></span></button>
+</div>
+</div>
+</section>
+</main>
+</div>
+</div>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</body>
+</html>
